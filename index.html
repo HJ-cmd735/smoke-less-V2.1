@@ -19,7 +19,10 @@ input{width:125px;border:1px solid #d1d5db;border-radius:11px;padding:9px;text-a
 .tabs{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(560px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:#fffffff2;border-top:1px solid #e5e7eb;padding:8px 8px calc(env(safe-area-inset-bottom) + 7px)}
 .tab{border:0;background:transparent;color:#6b7280;padding:7px}.tab b{display:block;font-size:20px}.tab.active{color:#111827}.page{display:none}.page.active{display:block}
 .modal{display:none;position:fixed;inset:0;background:#0008;align-items:flex-end;justify-content:center;z-index:20}.modal.show{display:flex}.sheet{width:min(560px,100%);background:#fff;border-radius:25px 25px 0 0;padding:20px 18px calc(env(safe-area-inset-bottom) + 22px)}
-</style></head><body>
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>  
+</head><body>
 <div class="app"><div class="top"><div><h1>🚭 SmokeLess TW</h1><div id="date" class="small"></div></div><button id="undoBtn" class="btn">復原</button></div>
 <section id="home" class="page active">
 <div class="card center"><div class="muted">今天抽菸</div><div id="count" class="count">0</div><div>目標 <b id="goal">10</b> 支</div><div class="progress"><div id="bar" class="bar"></div></div><div id="status" class="muted"></div><button id="recordBtn" class="btn primary wide" style="margin-top:16px">🚬 記錄一支</button></div>
@@ -34,6 +37,7 @@ input{width:125px;border:1px solid #d1d5db;border-radius:11px;padding:9px;text-a
 <script>
 (function(){
 "use strict";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $=id=>document.getElementById(id), KEY="smokelessTW_v2", RS=["工作","飯後","壓力","無聊","咖啡","社交","其他"];
 const E={date:$("date"),count:$("count"),goal:$("goal"),bar:$("bar"),status:$("status"),since:$("since"),last:$("last"),avg:$("avg"),streak:$("streak"),week:$("week"),logs:$("logs"),modal:$("modal"),reasons:$("reasons"),mtitle:$("mtitle"),cal:$("cal"),selTitle:$("selTitle"),selLogs:$("selLogs"),mTotal:$("mTotal"),mCost:$("mCost"),rstats:$("rstats"),tstats:$("tstats"),goalInput:$("goalInput"),priceInput:$("priceInput"),packInput:$("packInput")};
 let db;try{db=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){db=null}if(!db||typeof db!=="object")db={logs:{},goal:10,price:120,perPack:20};if(!db.logs)db.logs={};if(!db.goal)db.goal=10;if(db.price==null)db.price=120;if(!db.perPack)db.perPack=20;
