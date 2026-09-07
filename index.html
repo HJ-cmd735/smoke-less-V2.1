@@ -67,90 +67,103 @@ input{width:125px;border:1px solid #d1d5db;border-radius:11px;padding:9px;text-a
 (function(){
 "use strict";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
 // ===== Supabase 登入功能 =====
-const emailInput = document.getElementById("emailInput");
-const passwordInput = document.getElementById("passwordInput");
-const signUpBtn = document.getElementById("signUpBtn");
-const signInBtn = document.getElementById("signInBtn");
-const signOutBtn = document.getElementById("signOutBtn");
-const loggedOutArea = document.getElementById("loggedOutArea");
-const loggedInArea = document.getElementById("loggedInArea");
-const userEmail = document.getElementById("userEmail");
-const authMessage = document.getElementById("authMessage");
+document.addEventListener("DOMContentLoaded", () => {
 
-function showAuthUser(user) {
-  if (user) {
-    loggedOutArea.style.display = "none";
-    loggedInArea.style.display = "block";
-    userEmail.textContent = user.email;
-  } else {
-    loggedOutArea.style.display = "block";
-    loggedInArea.style.display = "none";
-    userEmail.textContent = "";
+  const emailInput = document.getElementById("emailInput");
+  const passwordInput = document.getElementById("passwordInput");
+  const signUpBtn = document.getElementById("signUpBtn");
+  const signInBtn = document.getElementById("signInBtn");
+  const signOutBtn = document.getElementById("signOutBtn");
+  const loggedOutArea = document.getElementById("loggedOutArea");
+  const loggedInArea = document.getElementById("loggedInArea");
+  const userEmail = document.getElementById("userEmail");
+  const authMessage = document.getElementById("authMessage");
+
+  function showAuthUser(user) {
+    if (user) {
+      loggedOutArea.style.display = "none";
+      loggedInArea.style.display = "block";
+      userEmail.textContent = user.email;
+    } else {
+      loggedOutArea.style.display = "block";
+      loggedInArea.style.display = "none";
+      userEmail.textContent = "";
+    }
   }
-}
 
-// 註冊
-signUpBtn.addEventListener("click", async () => {
-  authMessage.textContent = "註冊中...";
+  // 註冊
+  signUpBtn.addEventListener("click", async () => {
+    authMessage.textContent = "註冊中...";
 
-  const { data, error } = await supabaseClient.auth.signUp({
-    email: emailInput.value.trim(),
-    password: passwordInput.value
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!email || !password) {
+      authMessage.textContent = "請輸入 Email 和密碼";
+      return;
+    }
+
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password
+    });
+
+    if (error) {
+      authMessage.textContent = "註冊失敗：" + error.message;
+      return;
+    }
+
+    if (data.session) {
+      authMessage.textContent = "註冊成功，已登入 ☁️";
+      showAuthUser(data.user);
+    } else {
+      authMessage.textContent = "註冊成功！請到 Email 信箱確認驗證信。";
+    }
   });
 
-  if (error) {
-    authMessage.textContent = "註冊失敗：" + error.message;
-    return;
-  }
+  // 登入
+  signInBtn.addEventListener("click", async () => {
+    authMessage.textContent = "登入中...";
 
-  authMessage.textContent = "註冊成功！請到 Email 信箱確認驗證信。";
-
-  if (data.user && data.session) {
-    showAuthUser(data.user);
-  }
-});
-
-// 登入
-signInBtn.addEventListener("click", async () => {
-  authMessage.textContent = "登入中...";
-
-  const { data, error } =
-    await supabaseClient.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: emailInput.value.trim(),
       password: passwordInput.value
     });
 
-  if (error) {
-    authMessage.textContent = "登入失敗：" + error.message;
-    return;
-  }
+    if (error) {
+      authMessage.textContent = "登入失敗：" + error.message;
+      return;
+    }
 
-  authMessage.textContent = "登入成功 ☁️";
-  showAuthUser(data.user);
-});
+    authMessage.textContent = "登入成功 ☁️";
+    showAuthUser(data.user);
+  });
 
-// 登出
-signOutBtn.addEventListener("click", async () => {
-  const { error } = await supabaseClient.auth.signOut();
+  // 登出
+  signOutBtn.addEventListener("click", async () => {
+    const { error } = await supabaseClient.auth.signOut();
 
-  if (error) {
-    authMessage.textContent = "登出失敗：" + error.message;
-    return;
-  }
+    if (error) {
+      authMessage.textContent = "登出失敗：" + error.message;
+      return;
+    }
 
-  authMessage.textContent = "已登出";
-  showAuthUser(null);
-});
+    authMessage.textContent = "已登出";
+    showAuthUser(null);
+  });
 
-// 開啟 SmokeLess 時，檢查原本是否已登入
-supabaseClient.auth.getUser().then(({ data }) => {
-  showAuthUser(data.user);
-});
+  // 開啟 App 時檢查登入狀態
+  supabaseClient.auth.getUser().then(({ data }) => {
+    showAuthUser(data.user);
+  });
 
-// 登入狀態改變時更新畫面
-supabaseClient.auth.onAuthStateChange((_event, session) => {
-  showAuthUser(session?.user ?? null);
+  // 監聽登入狀態
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    showAuthUser(session?.user ?? null);
+  });
+
 });
 const $=id=>document.getElementById(id), KEY="smokelessTW_v2", RS=["工作","飯後","壓力","無聊","咖啡","社交","其他"];
 const E={date:$("date"),count:$("count"),goal:$("goal"),bar:$("bar"),status:$("status"),since:$("since"),last:$("last"),avg:$("avg"),streak:$("streak"),week:$("week"),logs:$("logs"),modal:$("modal"),reasons:$("reasons"),mtitle:$("mtitle"),cal:$("cal"),selTitle:$("selTitle"),selLogs:$("selLogs"),mTotal:$("mTotal"),mCost:$("mCost"),rstats:$("rstats"),tstats:$("tstats"),goalInput:$("goalInput"),priceInput:$("priceInput"),packInput:$("packInput")};
