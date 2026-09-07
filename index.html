@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 開啟 App 時檢查登入狀態
-  supabaseClient.auth.getUser().then(({ data }) => {
+  supabaseClient.auth.getUser().then(async ({ data }) => {
     showAuthUser(data.user);
   if(data.user){
     await loadCloudLogs();
