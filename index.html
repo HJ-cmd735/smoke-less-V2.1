@@ -350,6 +350,7 @@ async function undo(){
     console.error("Supabase 刪除發生錯誤：", error);
   }
 }
+window.testUndo = undo;
 function open(){E.modal.classList.add("show")} function close(){E.modal.classList.remove("show")}
 function pg(id,b){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");if(id==="calendar")renderCal();if(id==="stats")renderStats()}
 function setSave(){db.goal=Math.max(1,Number(E.goalInput.value)||10);db.price=Math.max(0,Number(E.priceInput.value)||0);db.perPack=Math.max(1,Number(E.packInput.value)||20);save()}
