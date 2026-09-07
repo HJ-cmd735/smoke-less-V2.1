@@ -287,7 +287,69 @@ async function loadCloudLogs(){
   }
 }
 window.testLoadCloudLogs = loadCloudLogs; 
-function undo(){let x=a(k());if(x.length){x.pop();save()}}
+async function undo(){
+  const x = a(k());
+
+  if(!x.length){
+    return;
+  }
+
+  const lastLog = x[x.length - 1];
+
+  // 先從本機移除
+  x.pop();
+  save();
+
+  // 如果這筆有 cloud_id，就直接刪除對應雲端紀錄
+  if(lastLog.cloud_id){
+    const { error } = await supabaseClient
+      .from("smoking_logs")
+      .delete()
+      .eq("id", lastLog.cloud_id);
+
+    if(error){
+      console.error("Supabase 刪除失敗：", error);
+      return;
+    }
+
+    console.log("🗑️ 雲端紀錄已刪除");
+    return;
+  }
+
+  // 如果是本機剛新增、還沒有 cloud_id
+  // 就用時間 + 使用者 ID 找到雲端紀錄
+  try{
+    const {
+      data: { user },
+      error: userError
+    } = await supabaseClient.auth.getUser();
+
+    if(userError || !user){
+      console.log("尚未登入，只刪除本機紀錄");
+      return;
+    }
+
+    if(!lastLog.time){
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("smoking_logs")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("smoked_at", lastLog.time);
+
+    if(error){
+      console.error("Supabase 刪除失敗：", error);
+      return;
+    }
+
+    console.log("🗑️ 雲端紀錄已刪除");
+
+  }catch(error){
+    console.error("Supabase 刪除發生錯誤：", error);
+  }
+}
 function open(){E.modal.classList.add("show")} function close(){E.modal.classList.remove("show")}
 function pg(id,b){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");if(id==="calendar")renderCal();if(id==="stats")renderStats()}
 function setSave(){db.goal=Math.max(1,Number(E.goalInput.value)||10);db.price=Math.max(0,Number(E.priceInput.value)||0);db.perPack=Math.max(1,Number(E.packInput.value)||20);save()}
