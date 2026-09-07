@@ -171,53 +171,7 @@ let db;try{db=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){db=null}if(
 let calDate=new Date(),selected=null;
 function k(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function a(x){return Array.isArray(db.logs[x])?db.logs[x]:[]} function save(){localStorage.setItem(KEY,JSON.stringify(db));render()} function fmt(t){return new Date(t).toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"})}
-async function add(r){
-  const x = k();
-  const time = new Date().toISOString();
-
-  // ① 先保存到原本的 localStorage
-  if(!Array.isArray(db.logs[x])) db.logs[x] = [];
-
-  db.logs[x].push({
-    time: time,
-    reason: r
-  });
-
-  close();
-  save();
-
-  // ② 如果有登入，再同步到 Supabase
-  try {
-    const {
-      data: { user },
-      error: userError
-    } = await supabaseClient.auth.getUser();
-
-    // 沒登入就只保留本機資料
-    if(userError || !user) {
-      console.log("尚未登入，這筆紀錄只儲存在本機");
-      return;
-    }
-
-    const { error } = await supabaseClient
-      .from("smoking_logs")
-      .insert({
-        user_id: user.id,
-        smoled_at: time,
-        reason: r,
-        note: null
-      });
-
-    if(error) {
-      console.error("Supabase 同步失敗：", error);
-      return;
-    }
-
-    console.log("✅ 抽菸紀錄已同步到 Supabase");
-
-  } catch(error) {
-    console.error("Supabase 同步發生錯誤：", error);
-  }
+function add(r){let x=k();if(!Array.isArray(db.logs[x]))db.logs[x]=[];db.logs[x].push({time:new Date().toISOString(),reason:r});close();save()}
 } function undo(){let x=a(k());if(x.length){x.pop();save()}}
 function open(){E.modal.classList.add("show")} function close(){E.modal.classList.remove("show")}
 function pg(id,b){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");if(id==="calendar")renderCal();if(id==="stats")renderStats()}
