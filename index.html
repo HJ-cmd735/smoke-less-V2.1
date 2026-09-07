@@ -159,12 +159,14 @@ loadCloudSettings();
   });
 
   // 開啟 App 時檢查登入狀態
-  supabaseClient.auth.getUser().then(async ({ data }) => {
-    showAuthUser(data.user);
+ supabaseClient.auth.getUser().then(({ data }) => {
+  showAuthUser(data.user);
+
   if(data.user){
-   loadCloudLogs();
+    loadCloudLogs();
+    loadCloudSettings();
   }
-  });
+});
 
   // 監聽登入狀態
   supabaseClient.auth.onAuthStateChange((_event, session) => {
