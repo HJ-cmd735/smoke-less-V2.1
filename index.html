@@ -289,8 +289,7 @@ async function loadCloudLogs(){
   }catch(error){
     console.error("下載雲端紀錄發生錯誤：", error);
   }
-}
-window.testLoadCloudLogs = loadCloudLogs; 
+} 
   // ===== 把本機歷史紀錄上傳到 Supabase =====
 async function uploadLocalHistory(){
   try{
