@@ -405,6 +405,57 @@ async function saveCloudSettings(){
     console.error("設定同步發生錯誤：", error);
   }
 }
+// ===== 從 Supabase 下載使用者設定 =====
+async function loadCloudSettings(){
+  try{
+    const {
+      data: { user },
+      error: userError
+    } = await supabaseClient.auth.getUser();
+
+    if(userError || !user){
+      console.log("尚未登入，不下載雲端設定");
+      return;
+    }
+
+    const { data, error } = await supabaseClient
+      .from("user_settings")
+      .select("daily_goal, pack_size, pack_price")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if(error){
+      console.error("下載設定失敗：", error);
+      return;
+    }
+
+    // 第一次登入，雲端還沒有設定
+    if(!data){
+      await saveCloudSettings();
+      return;
+    }
+
+    if(data.daily_goal != null){
+      db.goal = Number(data.daily_goal);
+    }
+
+    if(data.pack_size != null){
+      db.perPack = Number(data.pack_size);
+    }
+
+    if(data.pack_price != null){
+      db.price = Number(data.pack_price);
+    }
+
+    localStorage.setItem(KEY, JSON.stringify(db));
+    render();
+
+    console.log("⚙️ 雲端設定下載完成");
+
+  }catch(error){
+    console.error("下載設定發生錯誤：", error);
+  }
+}
 async function undo(){
   const x = a(k());
 
