@@ -287,6 +287,84 @@ async function loadCloudLogs(){
   }
 }
 window.testLoadCloudLogs = loadCloudLogs; 
+  // ===== 把本機歷史紀錄上傳到 Supabase =====
+async function uploadLocalHistory(){
+  try{
+    const {
+      data: { user },
+      error: userError
+    } = await supabaseClient.auth.getUser();
+
+    if(userError || !user){
+      console.log("尚未登入，無法上傳歷史紀錄");
+      return;
+    }
+
+    // ① 取得 Supabase 目前已存在的紀錄
+    const { data: cloudLogs, error: cloudError } = await supabaseClient
+      .from("smoking_logs")
+      .select("smoked_at")
+      .eq("user_id", user.id);
+
+    if(cloudError){
+      console.error("讀取雲端既有紀錄失敗：", cloudError);
+      return;
+    }
+
+    // ② 建立已存在時間的集合，用來防止重複
+    const existingTimes = new Set(
+      (cloudLogs || [])
+        .map(log => log.smoked_at)
+        .filter(Boolean)
+    );
+
+    // ③ 整理 localStorage 裡所有歷史紀錄
+    const rows = [];
+
+    Object.values(db.logs).forEach(dayLogs => {
+      if(!Array.isArray(dayLogs)) return;
+
+      dayLogs.forEach(log => {
+        if(!log || !log.time) return;
+
+        // 雲端已經有同時間紀錄就跳過
+        if(existingTimes.has(log.time)) return;
+
+        rows.push({
+          user_id: user.id,
+          smoked_at: log.time,
+          reason: log.reason || "其他",
+          note: log.note || null
+        });
+      });
+    });
+
+    if(rows.length === 0){
+      console.log("✅ 沒有需要上傳的舊紀錄");
+      return;
+    }
+
+    console.log("準備上傳舊紀錄：" + rows.length + " 筆");
+
+    // ④ 一次寫入 Supabase
+    const { error: insertError } = await supabaseClient
+      .from("smoking_logs")
+      .insert(rows);
+
+    if(insertError){
+      console.error("歷史紀錄上傳失敗：", insertError);
+      return;
+    }
+
+    console.log("☁️ 歷史紀錄上傳完成，共 " + rows.length + " 筆");
+
+  }catch(error){
+    console.error("歷史紀錄同步發生錯誤：", error);
+  }
+}
+
+// 暫時提供 Console 測試
+window.testUploadLocalHistory = uploadLocalHistory;
 async function undo(){
   const x = a(k());
 
