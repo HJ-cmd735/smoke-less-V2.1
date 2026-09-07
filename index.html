@@ -203,7 +203,7 @@ async function add(r){
       .from("smoking_logs")
       .insert({
         user_id: user.id,
-        smoled_at: time,
+        smoked_at: time,
         reason: r,
         note: null
       });
