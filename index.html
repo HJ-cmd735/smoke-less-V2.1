@@ -186,7 +186,83 @@ function renderStats(){let now=new Date(),mk=k(now).slice(0,7),total=Object.entr
 function exp(){let u=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:"application/json"})),x=document.createElement("a");x.href=u;x.download="SmokeLess_backup_"+k()+".json";document.body.appendChild(x);x.click();x.remove();URL.revokeObjectURL(u)}
 function imp(e){let f=e.target.files&&e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x||!x.logs)throw 0;db=x;save();alert("匯入完成")}catch(_){alert("檔案格式錯誤")}e.target.value=""};r.readAsText(f)}
 function render(){E.goalInput.value=db.goal;E.priceInput.value=db.price;E.packInput.value=db.perPack;E.reasons.innerHTML="";RS.forEach(r=>{let b=document.createElement("button");b.className="reason";b.textContent=r;b.addEventListener("click",()=>add(r));E.reasons.appendChild(b)});home();renderCal();renderStats()}
-$("undoBtn").addEventListener("click",undo);$("recordBtn").addEventListener("click",open);$("closeModal").addEventListener("click",close);E.modal.addEventListener("click",e=>{if(e.target===E.modal)close()});$("prevMonth").addEventListener("click",()=>{calDate.setMonth(calDate.getMonth()-1);renderCal()});$("nextMonth").addEventListener("click",()=>{calDate.setMonth(calDate.getMonth()+1);renderCal()});$("exportBtn").addEventListener("click",exp);$("importInput").addEventListener("change",imp);E.goalInput.addEventListener("change",setSave);E.priceInput.addEventListener("change",setSave);E.packInput.addEventListener("change",setSave);document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>pg(b.dataset.page,b)));
-render();setInterval(home,30000);if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js?v=2.1").catch(()=>{});
-})();
+// ===== 安全綁定事件 =====
+function bind(id, event, handler){
+  const el = $(id);
+
+  if(!el){
+    console.error("找不到 HTML 元素：#" + id);
+    return;
+  }
+
+  el.addEventListener(event, handler);
+}
+
+bind("undoBtn", "click", undo);
+bind("recordBtn", "click", open);
+bind("closeModal", "click", close);
+
+if(E.modal){
+  E.modal.addEventListener("click", e=>{
+    if(e.target === E.modal) close();
+  });
+}else{
+  console.error("找不到 HTML 元素：#modal");
+}
+
+bind("prevMonth", "click", ()=>{
+  calDate.setMonth(calDate.getMonth()-1);
+  renderCal();
+});
+
+bind("nextMonth", "click", ()=>{
+  calDate.setMonth(calDate.getMonth()+1);
+  renderCal();
+});
+
+bind("exportBtn", "click", exp);
+bind("importInput", "change", imp);
+
+if(E.goalInput){
+  E.goalInput.addEventListener("change", setSave);
+}else{
+  console.error("找不到 HTML 元素：#goalInput");
+}
+
+if(E.priceInput){
+  E.priceInput.addEventListener("change", setSave);
+}else{
+  console.error("找不到 HTML 元素：#priceInput");
+}
+
+if(E.packInput){
+  E.packInput.addEventListener("change", setSave);
+}else{
+  console.error("找不到 HTML 元素：#packInput");
+}
+
+document.querySelectorAll(".tab").forEach(b=>{
+  b.addEventListener("click", ()=>pg(b.dataset.page,b));
+});
+
+// ===== 啟動 SmokeLess =====
+try{
+  render();
+}catch(err){
+  console.error("SmokeLess render() 發生錯誤：", err);
+}
+
+setInterval(()=>{
+  try{
+    home();
+  }catch(err){
+    console.error("SmokeLess home() 發生錯誤：", err);
+  }
+},30000);
+
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("./sw.js?v=2.2").catch(err=>{
+    console.error("Service Worker 錯誤：", err);
+  });
+}
 </script></body></html>
