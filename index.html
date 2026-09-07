@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
   supabaseClient.auth.getUser().then(async ({ data }) => {
     showAuthUser(data.user);
   if(data.user){
-    await loadCloudLogs();
+   loadCloudLogs();
   }
   });
 
