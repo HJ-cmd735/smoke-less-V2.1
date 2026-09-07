@@ -223,6 +223,68 @@ async function add(r){
     console.error("Supabase 同步發生錯誤：", error);
   }
 }
+async function loadCloudLogs(){
+  try{
+    const {
+      data: { user },
+      error: userError
+    } = await supabaseClient.auth.getUser();
+
+    if(userError || !user){
+      console.log("尚未登入，不下載雲端紀錄");
+      return;
+    }
+
+    const { data, error } = await supabaseClient
+      .from("smoking_logs")
+      .select("id, smoked_at, reason, note")
+      .eq("user_id", user.id)
+      .is("delete_at", null)
+      .order("smoked_at", { ascending: true });
+
+    if(error){
+      console.error("下載 Supabase 紀錄失敗：", error);
+      return;
+    }
+
+    if(!data){
+      return;
+    }
+
+    data.forEach(log => {
+      if(!log.smoked_at) return;
+
+      const d = new Date(log.smoked_at);
+      const day = k(d);
+
+      if(!Array.isArray(db.logs[day])){
+        db.logs[day] = [];
+      }
+
+      // 避免同一筆紀錄重複加入
+      const exists = db.logs[day].some(localLog =>
+        localLog.time === log.smoked_at
+      );
+
+      if(!exists){
+        db.logs[day].push({
+          time: log.smoked_at,
+          reason: log.reason || "其他",
+          note: log.note || null,
+          cloud_id: log.id
+        });
+      }
+    });
+
+    localStorage.setItem(KEY, JSON.stringify(db));
+    render();
+
+    console.log("☁️ Supabase 紀錄下載完成，共 " + data.length + " 筆");
+
+  }catch(error){
+    console.error("下載雲端紀錄發生錯誤：", error);
+  }
+}
 function undo(){let x=a(k());if(x.length){x.pop();save()}}
 function open(){E.modal.classList.add("show")} function close(){E.modal.classList.remove("show")}
 function pg(id,b){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");if(id==="calendar")renderCal();if(id==="stats")renderStats()}
