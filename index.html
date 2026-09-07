@@ -329,8 +329,7 @@ async function uploadLocalHistory(){
         if(!log || !log.time) return;
 
         // 雲端已經有同時間紀錄就跳過
-        if(existingTimes.has(log.time)) return;
-
+       if(existingTimes.has(new Date(log.time).getTime())) return;
         rows.push({
           user_id: user.id,
           smoked_at: log.time,
