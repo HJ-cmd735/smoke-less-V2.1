@@ -313,10 +313,11 @@ async function uploadLocalHistory(){
 
     // ② 建立已存在時間的集合，用來防止重複
     const existingTimes = new Set(
-      (cloudLogs || [])
-        .map(log => log.smoked_at)
-        .filter(Boolean)
-    );
+  (cloudLogs || [])
+    .map(log => log.smoked_at)
+    .filter(Boolean)
+    .map(time => new Date(time).getTime())
+);
 
     // ③ 整理 localStorage 裡所有歷史紀錄
     const rows = [];
