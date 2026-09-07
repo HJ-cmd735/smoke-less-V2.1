@@ -118,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (data.session) {
       authMessage.textContent = "註冊成功，已登入 ☁️";
       showAuthUser(data.user);
+      await loadCloudLogs();
     } else {
       authMessage.textContent = "註冊成功！請到 Email 信箱確認驗證信。";
     }
