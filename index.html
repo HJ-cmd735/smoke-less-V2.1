@@ -172,7 +172,7 @@ let calDate=new Date(),selected=null;
 function k(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function a(x){return Array.isArray(db.logs[x])?db.logs[x]:[]} function save(){localStorage.setItem(KEY,JSON.stringify(db));render()} function fmt(t){return new Date(t).toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"})}
 function add(r){let x=k();if(!Array.isArray(db.logs[x]))db.logs[x]=[];db.logs[x].push({time:new Date().toISOString(),reason:r});close();save()}
-} function undo(){let x=a(k());if(x.length){x.pop();save()}}
+function undo(){let x=a(k());if(x.length){x.pop();save()}}
 function open(){E.modal.classList.add("show")} function close(){E.modal.classList.remove("show")}
 function pg(id,b){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");if(id==="calendar")renderCal();if(id==="stats")renderStats()}
 function setSave(){db.goal=Math.max(1,Number(E.goalInput.value)||10);db.price=Math.max(0,Number(E.priceInput.value)||0);db.perPack=Math.max(1,Number(E.packInput.value)||20);save()}
