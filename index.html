@@ -240,7 +240,7 @@ async function loadCloudLogs(){
       .from("smoking_logs")
       .select("id, smoked_at, reason, note")
       .eq("user_id", user.id)
-      .is("delete_at", null)
+      .is("deleted_at", null)
       .order("smoked_at", { ascending: true });
 
     if(error){
