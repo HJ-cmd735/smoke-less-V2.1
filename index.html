@@ -467,7 +467,17 @@ async function undo(){
 window.testUndo = undo;
 function open(){E.modal.classList.add("show")} function close(){E.modal.classList.remove("show")}
 function pg(id,b){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");if(id==="calendar")renderCal();if(id==="stats")renderStats()}
-function setSave(){db.goal=Math.max(1,Number(E.goalInput.value)||10);db.price=Math.max(0,Number(E.priceInput.value)||0);db.perPack=Math.max(1,Number(E.packInput.value)||20);save()}
+async function setSave(){
+  db.goal = Math.max(1, Number(E.goalInput.value) || 10);
+  db.price = Math.max(0, Number(E.priceInput.value) || 0);
+  db.perPack = Math.max(1, Number(E.packInput.value) || 20);
+
+  // 本機先存
+  save();
+
+  // 再同步雲端
+  await saveCloudSettings();
+}
 function streak(){let n=0,d=new Date();for(let i=0;i<365;i++){let c=a(k(d)).length;if(c>0&&c<=db.goal)n++;else break;d.setDate(d.getDate()-1)}return n}
 function home(){let now=new Date(),x=k(now),L=a(x),n=L.length;E.date.textContent=now.toLocaleDateString("zh-TW",{year:"numeric",month:"long",day:"numeric",weekday:"short"});E.count.textContent=n;E.goal.textContent=db.goal;E.bar.style.width=Math.min(100,n/db.goal*100)+"%";E.status.textContent=n===0?"今天還沒有紀錄":n<db.goal?`距離今日目標還有 ${db.goal-n} 支`:n===db.goal?"今天剛好達到目標":`今天超過目標 ${n-db.goal} 支`;
 let z=L[L.length-1];if(z&&z.time){let s=Math.max(0,Math.floor((Date.now()-new Date(z.time).getTime())/1000)),h=Math.floor(s/3600),m=Math.floor((s%3600)/60);E.since.textContent=h?`${h} 小時 ${m} 分`:`${m} 分鐘`;E.last.textContent="上一支："+fmt(z.time)}else{E.since.textContent="尚未紀錄";E.last.textContent=""}
