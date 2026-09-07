@@ -163,8 +163,8 @@ await loadCloudSettings();
   showAuthUser(data.user);
 
   if(data.user){
-    loadCloudLogs();
-    loadCloudSettings();
+   await loadCloudLogs();
+   await loadCloudSettings();
   }
 });
 
