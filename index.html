@@ -286,6 +286,7 @@ async function loadCloudLogs(){
     console.error("下載雲端紀錄發生錯誤：", error);
   }
 }
+window.testLoadCloudLogs = loadCloudLogs;  
 function undo(){let x=a(k());if(x.length){x.pop();save()}}
 function open(){E.modal.classList.add("show")} function close(){E.modal.classList.remove("show")}
 function pg(id,b){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");if(id==="calendar")renderCal();if(id==="stats")renderStats()}
