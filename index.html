@@ -365,6 +365,42 @@ async function uploadLocalHistory(){
 
 // 暫時提供 Console 測試
 window.testUploadLocalHistory = uploadLocalHistory;
+// ===== 上傳使用者設定到 Supabase =====
+async function saveCloudSettings(){
+  try{
+    const {
+      data: { user },
+      error: userError
+    } = await supabaseClient.auth.getUser();
+
+    if(userError || !user){
+      console.log("尚未登入，設定只儲存在本機");
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("user_settings")
+      .upsert({
+        user_id: user.id,
+        daily_goal: db.goal,
+        pack_size: db.perPack,
+        pack_price: db.price,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: "user_id"
+      });
+
+    if(error){
+      console.error("設定同步失敗：", error);
+      return;
+    }
+
+    console.log("⚙️ 設定已同步到 Supabase");
+
+  }catch(error){
+    console.error("設定同步發生錯誤：", error);
+  }
+}
 async function undo(){
   const x = a(k());
 
