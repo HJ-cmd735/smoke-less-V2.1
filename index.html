@@ -31,7 +31,36 @@ input{width:125px;border:1px solid #d1d5db;border-radius:11px;padding:9px;text-a
 <div class="card"><b>📊 最近 7 天</b><div id="week" class="week"></div></div><div class="card"><b>🕐 今日紀錄</b><div id="logs"></div></div></section>
 <section id="calendar" class="page"><div class="card"><div class="calhead"><button id="prevMonth" class="btn">‹</button><b id="mtitle"></b><button id="nextMonth" class="btn">›</button></div><div id="cal" class="cal"></div></div><div class="card"><b id="selTitle">日期明細</b><div id="selLogs"></div></div></section>
 <section id="stats" class="page"><div class="grid2"><div class="stat"><div class="small">本月總量</div><div id="mTotal" class="n">0</div><div class="small">支</div></div><div class="stat"><div class="small">本月花費</div><div id="mCost" class="n">$0</div></div></div><div class="card"><b>🧠 抽菸原因</b><div id="rstats"></div></div><div class="card"><b>📉 30 天變化</b><div id="tstats"></div></div></section>
-<section id="settings" class="page"><div class="card"><b>🎯 減量設定</b><div class="row"><span>每日目標</span><input id="goalInput" type="number" min="1"></div><div class="row"><span>每包價格</span><input id="priceInput" type="number" min="0"></div><div class="row"><span>每包支數</span><input id="packInput" type="number" min="1"></div></div><div class="card"><b>💾 備份</b><p class="small">換手機或清除 Safari 資料前，建議先匯出。</p><button id="exportBtn" class="btn primary">匯出 JSON</button><label class="btn" style="display:inline-block;margin-left:5px">匯入 JSON<input id="importInput" type="file" accept=".json,application/json" style="display:none"></label></div></section></div>
+<section id="settings" class="page"><div class="card" id="authCard">
+  <b>☁️ 雲端帳號</b>
+
+  <div id="loggedOutArea">
+    <p class="small">登入後可同步不同手機與裝置的 SmokeLess 紀錄。</p>
+
+    <div class="row">
+      <span>Email</span>
+      <input id="emailInput" type="email" placeholder="Email">
+    </div>
+
+    <div class="row">
+      <span>密碼</span>
+      <input id="passwordInput" type="password" placeholder="至少 6 碼">
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button id="signUpBtn" class="btn">註冊</button>
+      <button id="signInBtn" class="btn primary">登入</button>
+    </div>
+  </div>
+
+  <div id="loggedInArea" style="display:none">
+    <p class="small">目前登入：</p>
+    <div id="userEmail" style="font-weight:700;margin-bottom:12px"></div>
+    <button id="signOutBtn" class="btn">登出</button>
+  </div>
+
+  <div id="authMessage" class="small" style="margin-top:10px"></div>
+</div><div class="card"><b>🎯 減量設定</b><div class="row"><span>每日目標</span><input id="goalInput" type="number" min="1"></div><div class="row"><span>每包價格</span><input id="priceInput" type="number" min="0"></div><div class="row"><span>每包支數</span><input id="packInput" type="number" min="1"></div></div><div class="card"><b>💾 備份</b><p class="small">換手機或清除 Safari 資料前，建議先匯出。</p><button id="exportBtn" class="btn primary">匯出 JSON</button><label class="btn" style="display:inline-block;margin-left:5px">匯入 JSON<input id="importInput" type="file" accept=".json,application/json" style="display:none"></label></div></section></div>
 <nav class="tabs"><button class="tab active" data-page="home"><b>⌂</b>今天</button><button class="tab" data-page="calendar"><b>▦</b>月曆</button><button class="tab" data-page="stats"><b>▥</b>統計</button><button class="tab" data-page="settings"><b>⚙︎</b>設定</button></nav>
 <div id="modal" class="modal"><div class="sheet"><h3>這一支是因為？</h3><div id="reasons" class="reason-grid"></div><button id="closeModal" class="btn wide" style="margin-top:12px">取消</button></div></div>
 <script>
