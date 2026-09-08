@@ -147,22 +147,23 @@ await startRealtimeSync();
   });
 
   // 登出
-  signOutBtn.addEventListener("click", async () => {
-    const { error } = await supabaseClient.auth.signOut();
+ signOutBtn.addEventListener("click", async () => {
+  const { error } = await supabaseClient.auth.signOut();
 
-    if (error) {
-      authMessage.textContent = "登出失敗：" + error.message;
-      return;
-    }
+  if (error) {
+    authMessage.textContent = "登出失敗：" + error.message;
+    return;
+  }
 
-    authMessage.textContent = "已登出";
-showAuthUser(null);
+  // 停止 Realtime
+  if(realtimeChannel){
+    await supabaseClient.removeChannel(realtimeChannel);
+    realtimeChannel = null;
+  }
 
-if(realtimeChannel){
-  await supabaseClient.removeChannel(realtimeChannel);
-  realtimeChannel = null;
-}
-  });
+  authMessage.textContent = "已登出";
+  showAuthUser(null);
+});
 
   // 開啟 App 時檢查登入狀態
 supabaseClient.auth.getUser().then(async ({ data }) => {
