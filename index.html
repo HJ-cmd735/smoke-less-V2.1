@@ -121,6 +121,7 @@ showAuthUser(data.user);
 
 await loadCloudLogs();
 await loadCloudSettings();
+await startRealtimeSync();
     } else {
       authMessage.textContent = "註冊成功！請到 Email 信箱確認驗證信。";
     }
