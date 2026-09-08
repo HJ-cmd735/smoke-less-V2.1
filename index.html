@@ -166,6 +166,7 @@ supabaseClient.auth.getUser().then(async ({ data }) => {
   if(data.user){
     await loadCloudLogs();
     await loadCloudSettings();
+    await startRealtimeSync();
   }
 });
 
