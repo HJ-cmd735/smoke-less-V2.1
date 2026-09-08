@@ -274,9 +274,12 @@ async function loadCloudLogs(){
       }
 
       // 避免同一筆紀錄重複加入
-      const exists = db.logs[day].some(localLog =>
-        localLog.time === log.smoked_at
-      );
+     const cloudTime = new Date(log.smoked_at).getTime();
+
+const exists = db.logs[day].some(localLog =>
+  localLog.time &&
+  new Date(localLog.time).getTime() === cloudTime
+);
 
       if(!exists){
         db.logs[day].push({
