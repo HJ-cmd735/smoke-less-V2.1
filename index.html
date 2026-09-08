@@ -156,7 +156,12 @@ await startRealtimeSync();
     }
 
     authMessage.textContent = "已登出";
-    showAuthUser(null);
+showAuthUser(null);
+
+if(realtimeChannel){
+  await supabaseClient.removeChannel(realtimeChannel);
+  realtimeChannel = null;
+}
   });
 
   // 開啟 App 時檢查登入狀態
