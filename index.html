@@ -298,6 +298,53 @@ async function loadCloudLogs(){
   }
 } 
   // ===== 把本機歷史紀錄上傳到 Supabase =====
+// ===== Realtime 即時同步 =====
+let realtimeChannel = null;
+
+async function startRealtimeSync(){
+  try{
+    const {
+      data: { user },
+      error: userError
+    } = await supabaseClient.auth.getUser();
+
+    if(userError || !user){
+      console.log("尚未登入，不啟動 Realtime");
+      return;
+    }
+
+    // 避免重複建立監聽
+    if(realtimeChannel){
+      await supabaseClient.removeChannel(realtimeChannel);
+      realtimeChannel = null;
+    }
+
+    realtimeChannel = supabaseClient
+      .channel("smoking_logs_" + user.id)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "smoking_logs",
+          filter: "user_id=eq." + user.id
+        },
+        async payload => {
+
+          console.log("🔄 收到 Realtime 更新：", payload.eventType);
+
+          // 每次雲端資料變動後，重新抓一次雲端紀錄
+          await loadCloudLogs();
+        }
+      )
+      .subscribe(status => {
+        console.log("Realtime 狀態：", status);
+      });
+
+  }catch(error){
+    console.error("Realtime 啟動失敗：", error);
+  }
+}
 async function uploadLocalHistory(){
   try{
     const {
